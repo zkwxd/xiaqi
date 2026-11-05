@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>夏棋 · 九路斗场</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="top">
+      <div class="brand">
+        <p class="eyebrow">电子斗蛐蛐</p>
+        <h1>夏棋</h1>
+        <p class="sub">九路斗场</p>
+      </div>
+      <div class="seal" aria-hidden="true">九路</div>
+    </header>
+    <p id="rules-line" class="rules">正在读取规则…</p>
+    <main class="layout">
+      <section class="board-card">
+        <div class="players" id="player-bar">
+          <div class="side black-side">
+            <span class="stone-dot black"></span>
+            <div>
+              <p class="role">黑方 · 先手</p>
+              <p id="black-label" class="who">尚未开局</p>
+            </div>
+          </div>
+          <div class="side white-side">
+            <span class="stone-dot white"></span>
+            <div>
+              <p class="role">白方</p>
+              <p id="white-label" class="who">尚未开局</p>
+            </div>
+          </div>
+        </div>
+        <div class="board-shell">
+          <canvas id="board" width="640" height="640" aria-label="九路棋盘"></canvas>
+        </div>
+        <div class="scrub">
+          <button id="back-now" class="ghost" type="button">回到当前</button>
+          <input id="frame-range" type="range" min="0" max="0" value="0" aria-label="手数" />
+        </div>
+        <p id="status-line" class="status" aria-live="polite">开局后黑先。</p>
+        <p id="error-line" class="error" aria-live="assertive"></p>
+      </section>
+      <section class="panel">
+        <article class="card">
+          <h2>开局</h2>
+          <div class="grid-2">
+            <label>黑方
+              <select id="black-player"></select>
+            </label>
+            <label>白方
+              <select id="white-player"></select>
+            </label>
+          </div>
+          <label>内置 AI 思考
+            <select id="think-ms">
+              <option value="600">0.6 秒</option>
+              <option value="1500" selected>1.5 秒</option>
+              <option value="3000">3 秒</option>
+              <option value="6000">6 秒</option>
+              <option value="9000">9 秒</option>
+            </select>
+          </label>
+          <p class="hint">外层硬超时始终是 10 秒。超时、非法落子、协议错误判负。END_GAME 不能用来终局。</p>
+          <div class="row">
+            <button id="create-game" class="primary" type="button">开局</button>
+            <button id="pass-btn" type="button">虚手</button>
+            <button id="resign-btn" class="ghost" type="button">认输</button>
+            <button id="step-btn" type="button">对方走一步</button>
+            <button id="auto-btn" class="ghost" type="button">自动对战</button>
+          </div>
+        </article>
+        <article class="card" id="result-card" hidden></article>
+        <article class="card">
+          <div class="row spread">
+            <h2>手数</h2>
+            <label class="check"><input id="territory-toggle" type="checkbox" checked /> 终局地盘</label>
+          </div>
+          <ol id="move-list" class="moves"></ol>
+        </article>
+        <article class="card">
+          <div class="row spread">
+            <h2>对局分析</h2>
+            <div class="row">
+              <button id="analyze-btn" class="ghost" type="button">重新分析</button>
+              <button id="export-btn" type="button">导出棋谱</button>
+            </div>
+          </div>
+          <div id="analysis-box"><p class="muted">终局后给出缺点、参考着和胜子数。</p></div>
+        </article>
+        <article class="card">
+          <h2>接入自己的 AI</h2>
+          <p class="hint">每步收到一盘 JSON，回复一行 JSON：PLACE、PASS 或 RESIGN。命令在这台机器上执行。</p>
+          <div class="grid-2">
+            <label>名字
+              <input id="agent-name" maxlength="40" placeholder="例如 我的蟋蟀" />
+            </label>
+            <label>方式
+              <select id="agent-protocol">
+                <option value="stdio">本地命令</option>
+                <option value="http">HTTP</option>
+              </select>
+            </label>
+          </div>
+          <label id="command-label">命令
+            <input id="agent-command" placeholder="python agents/stdio_random_agent.py" />
+          </label>
+          <label id="endpoint-label" hidden>地址
+            <input id="agent-endpoint" placeholder="http://127.0.0.1:9000/move" />
+          </label>
+          <div class="row">
+            <button id="fill-sample" class="ghost" type="button">填入示例</button>
+            <button id="save-agent" type="button">接入</button>
+          </div>
+          <ul id="agent-list" class="agent-list"></ul>
+        </article>
+        <article class="card">
+          <h2>棋谱库</h2>
+          <ul id="library-list" class="library"></ul>
+        </article>
+      </section>
+    </main>
+  </div>
+  <script src="/static/main.js"></script>
+</body>
+</html>
