@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5ef">
+  <meta name="description" content="夏棋强化学习演示：挑战真实围棋 AI，观看原版对战，回放全部 200 局独立评测。">
+  <title>夏棋 · 在对弈中成长</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%232c493b'/%3E%3Ccircle cx='14' cy='14' r='6' fill='%23faf9f2'/%3E%3Ccircle cx='26' cy='26' r='6' fill='%23adbc9c'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/demo-assets/styles.css">
+  <script src="/demo-assets/main.js" defer></script>
+</head>
+<body>
+<svg class="icons" aria-hidden="true"><defs>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="m9 5 10 7-10 7Z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M16 5v14"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 10a8 8 0 1 0-1 7M20 4v6h-6"/></symbol>
+  <symbol id="i-step" viewBox="0 0 24 24"><path d="m5 5 10 7-10 7Zm14 0v14"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
+</defs></svg>
+<div class="page">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="夏棋首页"><span class="brand-mark"><i></i><i></i></span><span>夏棋<span class="brand-divider">/</span><small>强化学习实验室</small></span></a>
+    <nav class="navigation" aria-label="主导航">
+      <button class="nav-item active" data-page="play" aria-pressed="true">对弈体验</button>
+      <button class="nav-item" data-page="research" aria-pressed="false">训练成果</button>
+    </nav>
+    <span class="build-tag"><span class="status-dot"></span> LOCAL DEMO <span class="tag-version">01</span></span>
+  </header>
+
+  <section class="hero">
+    <div><p class="eyebrow">SELF-PLAY. LEARN. IMPROVE.</p><h1>让 AI，在对弈中<span>成长。</span></h1><p class="hero-copy">从 256 局自我对弈，到与你落下的下一手。<br class="mobile-break">一个看得见进步、也能亲手体验的围棋 AI。</p></div>
+    <div class="hero-note"><span class="mini-board" aria-hidden="true"><i></i><i></i><i></i></span><p>九路棋盘，无限可能。<br><span>9 × 9 · 中国数子 · 贴 7.5 目</span></p></div>
+  </section>
+
+  <section class="metrics" aria-label="真实训练与评测成果">
+    <article><div><strong id="stat-rate">—</strong><span class="metric-unit">%</span><span class="metric-chip">独立评测</span></div><p>对原模型胜率 <span id="stat-record">正在加载数据</span></p></article>
+    <article><div><strong id="stat-games">—</strong><span class="metric-unit">局</span></div><p>自我对弈 <span>4 轮强化训练</span></p></article>
+    <article><div><strong id="stat-positions">—</strong></div><p>新增训练局面 <span>从实战中学习</span></p></article>
+    <article><div><strong id="stat-time">—</strong><span class="metric-unit">s</span></div><p>实测最慢决策 <span>493 次 C++ 决策</span></p></article>
+  </section>
+  <p id="load-error" class="load-error" role="alert" hidden></p>
+
+  <main id="play-page">
+    <div class="section-top"><div><span class="section-index">01 / PLAY</span><h2>坐下来，下一盘。</h2></div><div class="mode-tabs" role="group" aria-label="体验方式"><button class="selected" data-mode="challenge" aria-pressed="true">挑战 AI</button><button data-mode="battle" aria-pressed="false">AI 对战</button><button data-mode="replay" aria-pressed="false">评测回放</button></div></div>
+    <div class="play-layout">
+      <section class="board-card" aria-label="围棋棋盘">
+        <div class="board-top"><div><span class="live-dot" id="board-dot"></span><strong id="board-title">九路棋室</strong><span id="board-context">真实模型 · 本地运行</span></div><span class="board-size">9 × 9</span></div>
+        <div class="players"><div class="player" id="black-player"><span class="stone black"></span><div><small>黑棋 · 先手</small><strong id="black-name">你</strong></div><span class="turn-label">执黑</span></div><span class="versus">VS</span><div class="player" id="white-player"><span class="stone white"></span><div><small>白棋</small><strong id="white-name">夏棋 · 强化版</strong></div><span class="turn-label">执白</span></div></div>
+        <div class="board-shell"><canvas id="board" width="640" height="640" tabindex="0" aria-label="九路围棋棋盘，点击交叉点落子。键盘方向键移动，回车落子。"></canvas></div>
+        <div class="board-footer"><span id="position-label">第 0 手</span><input id="timeline" aria-label="回看手数" type="range" min="0" max="0" value="0" disabled><button id="latest" class="text-button" disabled>回到当前 <span>↗</span></button></div>
+      </section>
+
+      <aside class="sidebar">
+        <section class="setup-card">
+          <div class="card-heading"><span class="small-label" id="mode-kicker">HUMAN × AI</span><span class="number-badge" id="mode-number">01</span></div>
+          <h3 id="mode-title">来挑战强化版。</h3><p class="description" id="mode-description">你来落子，AI 来接招。<br>无需设置，选好执子就能开始。</p>
+          <div id="color-options"><label class="field-label" id="color-label">选择你的执子</label><div class="color-choice" role="group" aria-labelledby="color-label"><button class="selected" data-color="black" aria-pressed="true"><span class="stone black"></span>执黑先手</button><button data-color="white" aria-pressed="false"><span class="stone white"></span>执白后手</button></div></div>
+          <div id="battle-options" hidden><label class="field-label" for="battle-colors">黑白安排</label><select id="battle-colors"><option value="trained">强化版执黑 · 原始版执白</option><option value="baseline">原始版执黑 · 强化版执白</option></select><p class="field-note">同一推理程序，不同训练权重。</p></div>
+          <div id="replay-options" hidden><label class="field-label" for="replay-filter">回放筛选</label><select id="replay-filter"><option value="all">全部 200 局</option><option value="win">强化版胜局</option><option value="loss">强化版负局</option></select><label class="field-label" for="replay-select">选择评测对局</label><select id="replay-select"></select><label class="field-label" for="replay-speed">播放速度</label><select id="replay-speed"><option value="1100">1× · 慢慢看</option><option value="550" selected>2× · 标准</option><option value="230">4× · 快速</option></select></div>
+          <button id="start" class="primary-button" disabled><span id="start-label">正在连接模型…</span><svg><use href="#i-arrow"/></svg></button>
+          <div class="engine-status" id="engine-status"><span class="status-dot"></span><span>正在检查模型</span></div>
+          <p class="replace-note" id="replace-note" hidden>再次开始将保留当前对局到棋谱库。</p>
+        </section>
+
+        <section class="session-card" aria-live="polite">
+          <div class="session-heading"><span class="small-label">棋局动态</span><span id="session-badge" class="muted-badge">等待开局</span></div>
+          <p class="game-status" id="game-status">准备好你的第一手。</p><p class="session-detail" id="session-detail">点击「开始对弈」，体验强化学习后的真实模型。</p>
+          <div class="thinking" id="thinking" hidden><i></i><i></i><i></i><span>正在搜索更好的落点</span></div>
+          <div class="game-controls"><button id="pass" disabled>虚手</button><button id="resign" disabled>认输</button><button id="autoplay" class="wide-control" hidden disabled><svg><use href="#i-play"/></svg><span>继续对战</span></button><button id="step" class="wide-control" hidden disabled><svg><use href="#i-step"/></svg><span>下一手</span></button></div>
+          <p id="game-error" class="error" role="alert" hidden></p>
+          <div id="result" class="result" hidden></div>
+        </section>
+
+        <section class="moves-card"><div class="session-heading"><span class="small-label">最近落子</span><button id="export" class="text-button" disabled><svg><use href="#i-download"/></svg>棋谱</button></div><div id="moves" class="move-chips"><p class="empty-note">每一手，都将留下记录。</p></div></section>
+        <p class="rules-note">连续两次虚手后数子。<br>死子需实际提掉，提子不重复计入面积。</p>
+      </aside>
+    </div>
+    <div class="under-board"><span><span class="status-dot"></span>冻结的评测版模型 · 每手 32 次搜索</span><button class="text-button" data-page="research">这份 AI 是如何进步的？ <span>↗</span></button></div>
+    <section class="history-section"><div class="session-heading"><span class="small-label">我的演示棋谱</span><span class="field-note">自动保存到本机</span></div><div id="history" class="history-list"><p class="empty-note">开始一盘，留下你的棋谱。</p></div></section>
+  </main>
+
+  <main id="research-page" hidden>
+    <div class="section-top"><div><span class="section-index">02 / EVIDENCE</span><h2>每一次进步，都有据可查。</h2></div><a class="report-link" href="/api/demo/report" download><svg><use href="#i-download"/></svg>下载评测报告</a></div>
+    <div class="research-grid">
+      <section class="evidence-card primary-evidence"><span class="small-label">独立评测 / 强化版 VS 原模型</span><div class="big-score"><strong id="research-rate">—</strong><span>% 胜率</span></div><div class="score-bar"><span id="wins-bar"></span><span id="losses-bar"></span></div><div class="bar-legend"><span><i class="legend-dot win"></i><b id="win-count">—</b> 胜</span><span><i class="legend-dot loss"></i><b id="loss-count">—</b> 负</span><span>200 局 · 100 组开局</span></div><p class="evidence-copy">固定新开局，交换黑白。训练完成后再进行独立测试，双方使用相同的搜索次数。</p><div class="paired-result" id="paired-result"></div></section>
+      <section class="evidence-card"><div class="session-heading"><span class="small-label">四轮训练 / 候选选拔</span><span class="muted-badge">每轮 64 局</span></div><div class="round-chart" id="round-chart" role="img" aria-label="四轮开发评测胜率"></div><p class="chart-note">开发评测用于选择候选；最终 69.5% 来自另一组独立测试。</p></section>
+    </div>
+    <section class="evidence-card all-games"><div class="session-heading"><div><span class="small-label">全部 200 局 / 原始记录</span><h3>胜负，都留在棋盘上。</h3></div><span class="field-note">点击任意一格，回看该局</span></div><div id="game-grid" class="game-grid"></div><div class="bar-legend"><span><i class="legend-dot win"></i>强化版胜</span><span><i class="legend-dot loss"></i>强化版负</span><span>按原评测顺序排列，包含全部胜局和负局</span></div></section>
+    <section class="learning-path"><div><span class="section-index">THE LEARNING LOOP</span><h2>从下棋，到学会下棋。</h2></div><div class="learning-steps"><article><span>01</span><h3>自我对弈</h3><p>搜索落子，完成 256 局，收集真实终局结果。</p></article><article><span>02</span><h3>学习价值</h3><p>新增 21,300 个局面，只训练价值头，保留原有落子策略。</p></article><article><span>03</span><h3>选拔候选</h3><p>用四轮开发评测选出候选，然后冻结模型。</p></article><article><span>04</span><h3>独立验证</h3><p>在未用于训练和选拔的新开局上，交换黑白验证。</p></article></div></section>
+    <div class="research-grid supplementary"><section class="evidence-card"><span class="small-label">辅助检查 / GNU GO 10 级</span><h3>相同开局下的外部对手测试</h3><div class="comparison" id="gnugo-comparison"></div><p class="chart-note">各 16 局，样本较小，仅作辅助证据。</p></section><section class="evidence-card"><span class="small-label">辅助检查 / 实际 C++ 程序</span><h3 id="native-score">—</h3><p class="evidence-copy" id="native-detail"></p><p class="chart-note">展示实时使用的原生推理程序；8 局结果仅作辅助证据。</p></section></div>
+    <p class="method-note" id="evaluation-note"></p><p class="method-note">这里展示的是 2026 年 11 月 9 日冻结的实验结果，未包含后续提交文件的改动，也未将本地结果计为线上积分。</p>
+  </main>
+  <footer><a class="footer-brand" href="/">夏棋<span>小棋盘，持续进步。</span></a><span>REINFORCEMENT LEARNING DEMO · 2026</span><a href="/arena">完整对局工具 ↗</a></footer>
+</div>
+</body>
+</html>

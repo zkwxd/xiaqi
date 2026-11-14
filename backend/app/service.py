@@ -11,6 +11,7 @@ from .agents import BUILTIN_IDS, BUILTIN_NAMES, HttpAgent, StdioAgent
 from .analysis import analyze_record, format_number
 from .coords import to_vertex
 from .database import Database, utc_now
+from .demo_ai import DEMO_NAMES, DemoAgent, model_status
 from .protocol import ContestLayer, ContestLoss, ProtocolError, parse_decision
 from .rule_engine import (
     BLACK,
@@ -61,7 +62,8 @@ class GameService:
             {"id": "builtin:mcts", "name": "蒙特卡洛", "protocol": "builtin"},
             {"id": "builtin:random", "name": "随机", "protocol": "builtin"},
         ]
-        return builtins + custom
+        demos = [{**model_status(player_id), "protocol": "demo"} for player_id in DEMO_NAMES]
+        return builtins[:1] + demos + builtins[1:] + custom
 
     def register_agent(self, name: str, protocol: str, command: str | None, endpoint: str | None) -> dict:
         cleaned = (name or "").strip()
@@ -100,7 +102,7 @@ class GameService:
         }
 
     def delete_agent(self, agent_id: str) -> None:
-        if agent_id in BUILTIN_IDS or agent_id == "human":
+        if agent_id in BUILTIN_IDS or agent_id in DEMO_NAMES or agent_id == "human":
             raise GameError(400, "内置对局者不能删除")
         if not self.db.delete_agent(agent_id):
             raise GameError(404, "Agent 不存在")
@@ -324,18 +326,27 @@ class GameService:
         return row
 
     def _ensure_player(self, player_id: str) -> None:
+        if player_id in DEMO_NAMES:
+            status = model_status(player_id)
+            if not status["available"]:
+                raise GameError(503, status["detail"])
+            return
         if player_id == "human" or player_id in BUILTIN_IDS:
             return
         if not self.db.get_agent(player_id):
             raise GameError(400, "没有这个对局者")
 
     def _player_name(self, player_id: str) -> str:
+        if player_id in DEMO_NAMES:
+            return DEMO_NAMES[player_id]
         if player_id in BUILTIN_NAMES:
             return BUILTIN_NAMES[player_id]
         agent = self.db.get_agent(player_id)
         return agent["name"] if agent else player_id
 
     def _resolve(self, player_id: str):
+        if player_id in DEMO_NAMES:
+            return DemoAgent(player_id)
         factory = BUILTIN_IDS.get(player_id)
         if factory is not None:
             return factory()

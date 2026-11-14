@@ -1,0 +1,9 @@
+{
+  "release": "upgrade-20261109",
+  "executable_sha256": "a1ad2fd0107b5b2b9ebad226fcbff0c5facf4122bfb491633c5e8fb6401b2ab1",
+  "trained_sha256": "bd1e192d5ba69f576180d262e98033101eac900d0aa969d8b99903aade62126d",
+  "baseline_sha256": "4b34c822364c016ef656e593423de1f3c0f6aedf473a768d7804dc7c466f6311",
+  "search_simulations": 32,
+  "search_seconds": 2.5,
+  "passes_to_score": 2
+}

@@ -15,6 +15,7 @@ from .config import ROOT, db_path
 from .database import Database
 from .rule_engine import RULES
 from .service import GameError, GameService
+from . import demo
 
 
 class CreateGameBody(BaseModel):
@@ -56,6 +57,31 @@ def create_app() -> FastAPI:
     @app.get("/api/health")
     def health():
         return {"ok": True}
+
+    @app.get("/api/demo")
+    def demo_overview():
+        return demo.overview()
+
+    @app.get("/api/demo/replays/{index}")
+    def demo_replay(index: int):
+        try:
+            return demo.replay(index)
+        except IndexError:
+            raise GameError(404, "评测棋谱不存在")
+
+    @app.get("/api/demo/replays/{index}/sgf")
+    def demo_sgf(index: int):
+        from .sgf_export import build_sgf
+        try:
+            game = demo.replay(index)
+        except IndexError:
+            raise GameError(404, "评测棋谱不存在")
+        return Response(build_sgf(game, None), media_type="application/x-go-sgf; charset=utf-8",
+                        headers={"Content-Disposition": f'attachment; filename="evaluation-{index + 1}.sgf"'})
+
+    @app.get("/api/demo/report")
+    def demo_report():
+        return FileResponse(ROOT / "demo" / "data" / "report.md", filename="xiaqi-evaluation.md")
 
     @app.get("/api/rules")
     def rules():
@@ -116,12 +142,22 @@ def create_app() -> FastAPI:
     if frontend.exists():
         app.mount("/static", StaticFiles(directory=frontend), name="static")
 
-    @app.get("/")
-    def index():
+    demo_frontend = ROOT / "demo" / "web"
+    if demo_frontend.exists():
+        app.mount("/demo-assets", StaticFiles(directory=demo_frontend), name="demo-assets")
+
+    @app.get("/arena")
+    def arena():
         page = Path(frontend) / "index.html"
         if not page.exists():
             return JSONResponse({"detail": "界面文件还没有放好"}, status_code=404)
         return FileResponse(page)
+
+    @app.get("/")
+    @app.get("/demo")
+    def index():
+        page = demo_frontend / "index.html"
+        return FileResponse(page) if page.exists() else arena()
 
     return app
 
